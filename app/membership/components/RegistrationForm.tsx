@@ -24,7 +24,7 @@ export default function RegistrationForm({ selectedMembership }: RegistrationFor
     const membershipFee = selectedMembership === "student" ? "$20" : 
                          selectedMembership === "general" ? "$45" : "$100";
 
-    const mailtoLink = `mailto:membership@northernyetisfc.com?subject=Membership Registration - ${formData.firstName} ${formData.lastName}&body=${encodeURIComponent(
+    const mailtoLink = `mailto:Northernyetisfc@gmail.com?subject=Membership Registration - ${formData.firstName} ${formData.lastName}&body=${encodeURIComponent(
       `MEMBERSHIP REGISTRATION DETAILS:\n\nName: ${formData.firstName} ${formData.lastName}\nEmail: ${formData.email}\nDate of Birth: ${formData.dateOfBirth}\nAddress: ${formData.address}\nGender: ${formData.gender}\nPhone: ${formData.phoneNumber}\nMembership Type: ${selectedMembership.toUpperCase()}\nMembership Fee: ${membershipFee}\nPayment Method: ${formData.paymentMethod}\n\n---\nSent from Northern Yetis FC Website`
     )}`;
     

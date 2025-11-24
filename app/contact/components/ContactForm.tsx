@@ -16,7 +16,7 @@ export default function ContactForm() {
     const { name, email, subject, message } = formData;
     
     // Create mailto link with form data
-    const mailtoLink = `mailto:contact@northernyetisfc.com?subject=${encodeURIComponent(subject)} - From ${encodeURIComponent(name)}&body=${encodeURIComponent(
+    const mailtoLink = `mailto:Northernyetisfc@gmail.com?subject=${encodeURIComponent(subject)} - From ${encodeURIComponent(name)}&body=${encodeURIComponent(
       `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}\n\n---\nSent from Northern Yetis FC Website`
     )}`;
     
