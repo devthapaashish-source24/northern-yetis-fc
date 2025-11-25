@@ -5,28 +5,28 @@ import { jsPDF } from "jspdf";
 export default function DownloadSchedule() {
   const schedule = [
     { week: "Week 1", date: "Nov 30, 2025", games: [
-      { time: "6:00-7:00 AM", match: "NY Legends vs NY GenZ", court: "Main Court" },
-      { time: "7:00-8:00 AM", match: "NY Alpha vs Peel", court: "Main Court" }
+      { time: "6:00-7:00 AM", match: "NY Legends vs NY GenZ", court: "Inifinity Sports | Brampton Field" },
+      { time: "7:00-8:00 AM", match: "NY Alpha vs Peel F.C. ", court: "Inifinity Sports | Brampton Field" }
     ]},
     { week: "Week 2", date: "Dec 07, 2025", games: [
-      { time: "6:00-7:00 AM", match: "NY Legends vs Peel", court: "Main Court" },
-      { time: "7:00-8:00 AM", match: "NY Alpha vs NY GenZ", court: "Main Court" }
+      { time: "6:00-7:00 AM", match: "NY Legends vs Peel F.C. ", court: "Inifinity Sports | Brampton Field" },
+      { time: "7:00-8:00 AM", match: "NY Alpha vs NY GenZ", court: "Inifinity Sports | Brampton Field" }
     ]},
     { week: "Week 3", date: "Dec 14, 2025", games: [
-      { time: "6:00-7:00 AM", match: "NY Legends vs NY Alpha", court: "Main Court" },
-      { time: "7:00-8:00 AM", match: "NY GenZ vs Peel", court: "Main Court" }
+      { time: "6:00-7:00 AM", match: "NY Legends vs NY Alpha", court: "Inifinity Sports | Brampton Field" },
+      { time: "7:00-8:00 AM", match: "NY GenZ vs Peel F.C. ", court: "Inifinity Sports | Brampton Field" }
     ]},
     { week: "Week 4", date: "Dec 21, 2025", games: [
-      { time: "6:00-7:00 AM", match: "NY Alpha vs Peel", court: "Main Court" },
-      { time: "7:00-8:00 AM", match: "NY Legends vs NY GenZ", court: "Main Court" }
+      { time: "6:00-7:00 AM", match: "NY Alpha vs Peel F.C. ", court: "Inifinity Sports | Brampton Field" },
+      { time: "7:00-8:00 AM", match: "NY Legends vs NY GenZ", court: "Inifinity Sports | Brampton Field" }
     ]},
     { week: "Week 5", date: "Dec 28, 2025", games: [
-      { time: "6:00-7:00 AM", match: "NY Alpha vs NY GenZ", court: "Main Court" },
-      { time: "7:00-8:00 AM", match: "NY Legends vs Peel", court: "Main Court" }
+      { time: "6:00-7:00 AM", match: "NY Alpha vs NY GenZ", court: "Inifinity Sports | Brampton Field" },
+      { time: "7:00-8:00 AM", match: "NY Legends vs Peel F.C. ", court: "Inifinity Sports | Brampton Field" }
     ]},
     { week: "Week 6", date: "Jan 04, 2025", games: [
-      { time: "6:00-7:00 AM", match: "NY GenZ vs Peel", court: "Main Court" },
-      { time: "7:00-8:00 AM", match: "NY Legends vs NY Alpha", court: "Main Court" }
+      { time: "6:00-7:00 AM", match: "NY GenZ vs Peel F.C. ", court: "Inifinity Sports | Brampton Field" },
+      { time: "7:00-8:00 AM", match: "NY Legends vs NY Alpha", court: "Inifinity Sports | Brampton Field" }
     ]}
   ];
 
@@ -70,11 +70,11 @@ export default function DownloadSchedule() {
     yPosition += 6;
     doc.text("• Session Times: Sundays 6:00 AM - 8:00 AM", 20, yPosition);
     yPosition += 6;
-    doc.text("• Venue: Brampton Sports Complex, Brampton, ON", 20, yPosition);
+    doc.text("• Venue: Infinite Sports, Brampton, ON", 20, yPosition);
     yPosition += 6;
-    doc.text("• Format: 7v7 Futsal | 40-minute matches", 20, yPosition);
+    doc.text("• Format: 5v5 Futsal | 40-minute matches", 20, yPosition);
     yPosition += 6;
-    doc.text("• Participating Teams: NY Legends, NY Alpha, NY GenZ, Peel", 20, yPosition);
+    doc.text("• Participating Teams: NY Legends, NY Alpha, NY GenZ, Peel F.C. ", 20, yPosition);
     
     yPosition += 15;
 
