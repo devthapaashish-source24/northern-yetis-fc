@@ -29,7 +29,8 @@ export default function EventsPage() {
     },
     {
       name: "Peel F.C.",
-      players: ["Team details coming soon..."]
+      players: ["Niraj Lama","Spandan Bhattarai","Shubham Pandit",
+        "Raj Shrestha","Sonam Gurung","Suman Gurung","Bobin Furung","Keeran Bhatta","Ronish Makaju",]
     }
   ];
 

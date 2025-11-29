@@ -1,29 +1,23 @@
-// app/api/standings/route.js
+import clientPromise from '../../../lib/mongodb';
+import { ObjectId } from 'mongodb'; 
+const DB_NAME = "northern-yetis-fc";
+// Helper: Calculate standings from matches
+const calculateStandings = (teams, matches) => {
+  const teamStats = {};
+  
+  // Initialize all teams with zero stats
+  teams.forEach(team => {
+    teamStats[team.name] = {
+      ...team,
+      played: 0, won: 0, drawn: 0, lost: 0,
+      goalsFor: 0, goalsAgainst: 0, points: 0, goalDifference: 0
+    };
+  });
 
-// In-memory database (shared across all users)
-let standingsData = {
-  teams: [
-    { id: 1, name: "NY Legends", short: "LEG", played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0 },
-    { id: 2, name: "NY Alpha", short: "ALP", played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0 },
-    { id: 3, name: "NY GenZ", short: "GEN", played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0 },
-    { id: 4, name: "Peel F.C.", short: "PEL", played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0 }
-  ],
-  matches: [],
-  lastUpdated: new Date().toISOString()
-};
-
-// Helper function to update team standings
-function updateTeamStandings(teams, matches) {
-  // Reset all teams
-  const resetTeams = teams.map(team => ({
-    ...team,
-    played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0
-  }));
-
-  // Recalculate from all matches
+  // Calculate stats from matches
   matches.forEach(match => {
-    const teamA = resetTeams.find(t => t.name === match.teamA);
-    const teamB = resetTeams.find(t => t.name === match.teamB);
+    const teamA = teamStats[match.teamA];
+    const teamB = teamStats[match.teamB];
     
     if (teamA && teamB) {
       // Update Team A
@@ -54,82 +48,157 @@ function updateTeamStandings(teams, matches) {
     }
   });
 
-  return resetTeams;
-}
+  // Calculate goal difference and return as array
+  return Object.values(teamStats).map(team => ({
+    ...team,
+    goalDifference: team.goalsFor - team.goalsAgainst
+  }));
+};
+
+// Validation helper
+const validateMatchData = (data) => {
+  const { week, teamA, teamB, scoreA, scoreB } = data;
+  
+  if (!week || !teamA || !teamB || scoreA === undefined || scoreB === undefined) {
+    throw new Error('Missing required fields: week, teamA, teamB, scoreA, scoreB');
+  }
+
+  if (teamA === teamB) {
+    throw new Error('Team cannot play against itself');
+  }
+
+  if (scoreA < 0 || scoreB < 0) {
+    throw new Error('Scores cannot be negative');
+  }
+
+  if (week < 1 || week > 6) {
+    throw new Error('Week must be between 1 and 6');
+  }
+};
 
 // GET - Read all data
 export async function GET() {
-  return Response.json(standingsData);
+  try {
+    const client = await clientPromise;
+    const db = client.db(DB_NAME);
+
+    const matches = await db.collection('matches')
+      .find({})
+      .sort({ timestamp: -1 })
+      .toArray();
+
+    const teams = await db.collection('teams').find({}).toArray();
+    const standings = calculateStandings(teams, matches);
+
+    return Response.json({
+      success: true,
+      data: {
+        teams: standings,
+        matches: matches,
+        lastUpdated: new Date().toISOString()
+      }
+    });
+
+  } catch (error) {
+    console.error('GET Error:', error);
+    return Response.json({ 
+      success: false, 
+      error: 'Failed to fetch standings' 
+    }, { status: 500 });
+  }
 }
 
 // POST - Create new match
 export async function POST(request) {
   try {
+    const client = await clientPromise;
+    const db = client.db(DB_NAME);
+    
     const body = await request.json();
-    const { week, teamA, teamB, scoreA, scoreB } = body;
+    
+    // Validate input
+    validateMatchData(body);
 
     // Create new match
     const newMatch = {
-      id: Date.now() + Math.random(),
-      week: parseInt(week),
-      teamA,
-      teamB,
-      scoreA: parseInt(scoreA),
-      scoreB: parseInt(scoreB),
+      week: parseInt(body.week),
+      teamA: body.teamA,
+      teamB: body.teamB,
+      scoreA: parseInt(body.scoreA),
+      scoreB: parseInt(body.scoreB),
       timestamp: new Date().toISOString()
     };
 
-    // Add to matches
-    standingsData.matches.push(newMatch);
-    
-    // Update team standings
-    standingsData.teams = updateTeamStandings(standingsData.teams, standingsData.matches);
-    standingsData.lastUpdated = new Date().toISOString();
+    // Insert into database
+    await db.collection('matches').insertOne(newMatch);
+
+    // Get updated data and calculate standings
+    const matches = await db.collection('matches').find({}).toArray();
+    const teams = await db.collection('teams').find({}).toArray();
+    const standings = calculateStandings(teams, matches);
 
     return Response.json({ 
       success: true, 
-      data: standingsData,
+      data: {
+        teams: standings,
+        matches: matches
+      },
       message: 'Match added successfully!' 
     });
 
   } catch (error) {
+    console.error('POST Error:', error);
     return Response.json({ 
       success: false, 
-      error: 'Failed to add match' 
-    }, { status: 500 });
+      error: error.message 
+    }, { status: 400 });
   }
 }
 
-// PUT - Update existing match
+// PUT - Update match
 export async function PUT(request) {
   try {
+    const client = await clientPromise;
+    const db = client.db(DB_NAME);
+    
     const body = await request.json();
     const { matchId, scoreA, scoreB } = body;
 
-    // Find and update match
-    const matchIndex = standingsData.matches.findIndex(match => match.id === matchId);
-    if (matchIndex === -1) {
+    // Validate scores
+    if (scoreA < 0 || scoreB < 0) {
       return Response.json({ 
         success: false, 
-        error: 'Match not found' 
-      }, { status: 404 });
+        error: 'Scores cannot be negative' 
+      }, { status: 400 });
     }
 
-    // Update match scores
-    standingsData.matches[matchIndex].scoreA = parseInt(scoreA);
-    standingsData.matches[matchIndex].scoreB = parseInt(scoreB);
-    
-    // Recalculate all standings
-    standingsData.teams = updateTeamStandings(standingsData.teams, standingsData.matches);
-    standingsData.lastUpdated = new Date().toISOString();
+    // Update match in database
+    await db.collection('matches').updateOne(
+      { _id: new ObjectId(matchId) },
+      { 
+        $set: { 
+          scoreA: parseInt(scoreA),
+          scoreB: parseInt(scoreB)
+        } 
+      }
+    );
+
+    // Get updated data and calculate standings
+    const matches = await db.collection('matches').find({}).toArray();
+    const teams = await db.collection('teams').find({}).toArray();
+    const standings = calculateStandings(teams, matches);
 
     return Response.json({ 
       success: true, 
-      data: standingsData,
+      data: {
+        teams: standings,
+        matches: matches
+      },
       message: 'Match updated successfully!' 
     });
 
   } catch (error) {
+    console.error('PUT Error:', error);
     return Response.json({ 
       success: false, 
       error: 'Failed to update match' 
@@ -140,23 +209,33 @@ export async function PUT(request) {
 // DELETE - Remove match
 export async function DELETE(request) {
   try {
-    const { searchParams } = new URL(request.url);
-    const matchId = parseFloat(searchParams.get('matchId'));
-
-    // Remove match
-    standingsData.matches = standingsData.matches.filter(match => match.id !== matchId);
+    const client = await clientPromise;
+    const db = client.db(DB_NAME);
     
-    // Recalculate standings
-    standingsData.teams = updateTeamStandings(standingsData.teams, standingsData.matches);
-    standingsData.lastUpdated = new Date().toISOString();
+    const { searchParams } = new URL(request.url);
+    const matchId = searchParams.get('matchId');
+
+    // Delete match from database
+    await db.collection('matches').deleteOne({ 
+      _id: new ObjectId(matchId) 
+    });
+
+    // Get updated data and calculate standings
+    const matches = await db.collection('matches').find({}).toArray();
+    const teams = await db.collection('teams').find({}).toArray();
+    const standings = calculateStandings(teams, matches);
 
     return Response.json({ 
       success: true, 
-      data: standingsData,
+      data: {
+        teams: standings,
+        matches: matches
+      },
       message: 'Match deleted successfully!' 
     });
 
   } catch (error) {
+    console.error('DELETE Error:', error);
     return Response.json({ 
       success: false, 
       error: 'Failed to delete match' 

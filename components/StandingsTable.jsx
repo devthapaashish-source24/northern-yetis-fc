@@ -5,6 +5,8 @@ export default function StandingsTable() {
   const { getStandings, getStatistics } = useStandings();
   const standings = getStandings();
   const stats = getStatistics();
+  console.log('standings',standings)
+  console.log('stats',stats)
 
   return (
     <div className="p-6 bg-white shadow-lg rounded-xl">
@@ -50,29 +52,25 @@ export default function StandingsTable() {
             </tr>
           </thead>
           <tbody>
-            {standings.map((team, index) => (
-              <tr 
-                key={team.id} 
-                className={`border-b hover:bg-gray-50 ${
-                  index < 2 ? 'bg-green-50' : index === standings.length - 1 ? 'bg-red-50' : ''
-                }`}
-              >
-                <td className="p-3 font-bold">{team.position}</td>
-                <td className="p-3 font-semibold">{team.name}</td>
-                <td className="p-3 text-center">{team.played}</td>
-                <td className="p-3 font-semibold text-center text-green-600">{team.won}</td>
-                <td className="p-3 text-center text-yellow-600">{team.drawn}</td>
-                <td className="p-3 text-center text-red-600">{team.lost}</td>
-                <td className="p-3 text-center">{team.goalsFor}</td>
-                <td className="p-3 text-center">{team.goalsAgainst}</td>
-                <td className={`p-3 text-center font-semibold ${
-                  team.goalDifference > 0 ? 'text-green-600' : team.goalDifference < 0 ? 'text-red-600' : 'text-gray-600'
-                }`}>
-                  {team.goalDifference > 0 ? '+' : ''}{team.goalDifference}
-                </td>
-                <td className="p-3 text-center font-bold text-[#4A154B]">{team.points}</td>
-              </tr>
-            ))}
+                {standings.map((team, index) => (
+                <tr key={team._id || team.name} className="border-b hover:bg-gray-50">
+                  <td className="p-3 font-semibold text-center">{index + 1}</td>
+                  <td className="p-3 font-semibold">{team.name}</td>
+                  <td className="p-3 text-center">{team.played}</td>
+                  <td className="p-3 text-center text-green-600">{team.won}</td>
+                  <td className="p-3 text-center text-yellow-600">{team.drawn}</td>
+                  <td className="p-3 text-center text-red-600">{team.lost}</td>
+                  <td className="p-3 text-center">{team.goalsFor}</td>
+                  <td className="p-3 text-center">{team.goalsAgainst}</td>
+                  <td className={`p-3 text-center font-semibold ${
+                    team.goalDifference > 0 ? 'text-green-600' : 
+                    team.goalDifference < 0 ? 'text-red-600' : 'text-gray-600'
+                  }`}>
+                    {team.goalDifference > 0 ? '+' : ''}{team.goalDifference}
+                  </td>
+                  <td className="p-3 text-center font-bold text-[#4A154B]">{team.points}</td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>

@@ -1,163 +1,146 @@
 "use client";
-
 import { useState, useEffect } from 'react';
-import { 
-  loadData, 
-  saveData, 
-  addMatch, 
-  updateMatch, 
-  deleteMatch, 
-  updateTeams,
-  resetData,
-  getCurrentData 
-} from '../localDB/standingsData'
 
 export const useStandings = () => {
   const [teams, setTeams] = useState([]);
   const [matches, setMatches] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState('');
 
-  // Load data on component mount
-  useEffect(() => {
-    const data = loadData();
-    setTeams(data.teams);
-    setMatches(data.matches);
-    setIsLoaded(true);
-  }, []);
-
-  // Update local state when data changes
-  const refreshData = () => {
-    const data = getCurrentData();
-    setTeams(data.teams);
-    setMatches(data.matches);
-  };
-
-  // Add match result
-  const addMatchResult = (week, teamA, teamB, scoreA, scoreB) => {
-    const newMatch = addMatch({
-      week,
-      teamA,
-      teamB,
-      scoreA: parseInt(scoreA),
-      scoreB: parseInt(scoreB)
-    });
-    
-    refreshData();
-    updateTeamStandings(teamA, teamB, scoreA, scoreB);
-    
-    return newMatch;
-  };
-
-  // Update team standings
-  const updateTeamStandings = (teamAName, teamBName, scoreA, scoreB) => {
-    const updatedTeams = teams.map(team => {
-      if (team.name === teamAName) {
-        return updateSingleTeam(team, scoreA, scoreB, scoreA > scoreB, scoreA === scoreB);
+  // Load data from API
+useEffect(() => {
+  const loadData = async () => {
+    try {
+      console.log('🔄 FETCHING DATA FROM API...');
+      const response = await fetch('/api/standings');
+      const data = await response.json();
+      console.log('📥 FULL API RESPONSE:', data);
+      
+      if (data.success) {
+        console.log('✅ API SUCCESS - Teams:', data.data.teams);
+        console.log('✅ API SUCCESS - Matches:', data.data.matches);
+        setTeams(data.data.teams);
+        setMatches(data.data.matches);
+      } else {
+        console.error('❌ API ERROR:', data.error);
       }
-      if (team.name === teamBName) {
-        return updateSingleTeam(team, scoreB, scoreA, scoreB > scoreA, scoreA === scoreB);
-      }
-      return team;
-    });
-    
-    setTeams(updatedTeams);
-    updateTeams(updatedTeams);
-  };
-
-  // Helper to update single team stats
-  const updateSingleTeam = (team, goalsFor, goalsAgainst, isWin, isDraw) => {
-    const updated = { ...team };
-    updated.played++;
-    updated.goalsFor += goalsFor;
-    updated.goalsAgainst += goalsAgainst;
-
-    if (isWin) {
-      updated.won++;
-      updated.points += 3;
-    } else if (isDraw) {
-      updated.drawn++;
-      updated.points += 1;
-    } else {
-      updated.lost++;
+      setIsLoaded(true);
+    } catch (error) {
+      console.error('❌ NETWORK ERROR:', error);
+      setIsLoaded(true);
     }
+  };
+  loadData();
+}, []);
 
-    return updated;
+  // Show temporary message
+  const showMessage = (text, duration = 3000) => {
+    setMessage(text);
+    setTimeout(() => setMessage(''), duration);
   };
 
-  // Update existing match
-  const handleUpdateMatch = (matchId, newScoreA, newScoreB) => {
-    const match = matches.find(m => m.id === matchId);
-    if (!match) return;
-
-    // Reset teams and recalculate all matches
-    const initialTeams = [
-      { id: 1, name: "NY Legends", short: "LEG", played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0 },
-      { id: 2, name: "NY Alpha", short: "ALP", played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0 },
-      { id: 3, name: "NY GenZ", short: "GEN", played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0 },
-      { id: 4, name: "Peel", short: "PEL", played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0 }
-    ];
-
-    // Update the match
-    updateMatch(matchId, { 
-      scoreA: parseInt(newScoreA), 
-      scoreB: parseInt(newScoreB) 
+  // Add match result - UPDATED response structure
+ const addMatchResult = async (week, teamA, teamB, scoreA, scoreB) => {
+  setLoading(true);
+  try {
+    console.log('📤 SENDING DATA:', { week, teamA, teamB, scoreA, scoreB });
+    console.log('📤 DATA TYPES:', {
+      week: typeof week,
+      teamA: typeof teamA, 
+      teamB: typeof teamB,
+      scoreA: typeof scoreA,
+      scoreB: typeof scoreB
     });
+    
+    const response = await fetch('/api/standings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ week, teamA, teamB, scoreA, scoreB })
+    });
+    
+    const result = await response.json();
+    console.log('📥 API RESPONSE:', result);
+    
+    if (result.success) {
+      setTeams(result.data.teams);
+      setMatches(result.data.matches);
+      showMessage('✅ Match added successfully!');
+    } else {
+      showMessage('❌ Failed to add match: ' + result.error);
+    }
+  } catch (error) {
+    console.error('❌ NETWORK ERROR:', error);
+    showMessage('❌ Error adding match');
+  } finally {
+    setLoading(false);
+  }
+};
 
-    // Recalculate all standings
-    const updatedMatches = matches.map(m => 
-      m.id === matchId 
-        ? { ...m, scoreA: parseInt(newScoreA), scoreB: parseInt(newScoreB) }
-        : m
-    );
-
-    let recalculatedTeams = [...initialTeams];
-    updatedMatches.forEach(match => {
-      recalculatedTeams = recalculatedTeams.map(team => {
-        if (team.name === match.teamA) {
-          return updateSingleTeam(team, match.scoreA, match.scoreB, match.scoreA > match.scoreB, match.scoreA === match.scoreB);
-        }
-        if (team.name === match.teamB) {
-          return updateSingleTeam(team, match.scoreB, match.scoreA, match.scoreB > match.scoreA, match.scoreA === match.scoreB);
-        }
-        return team;
+  // Update match - NEEDS TO BE ADDED to API route
+  const updateMatch = async (matchId, scoreA, scoreB) => {
+    setLoading(true);
+    try {
+      const response = await fetch('/api/standings', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ matchId, scoreA, scoreB })
       });
-    });
-
-    setTeams(recalculatedTeams);
-    updateTeams(recalculatedTeams);
-    refreshData();
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        setTeams(result.data.teams);
+        setMatches(result.data.matches);
+        showMessage('✅ Match updated successfully!');
+      } else {
+        showMessage('❌ Failed to update match: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error updating match:', error);
+      showMessage('❌ Error updating match');
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Delete match
-  const handleDeleteMatch = (matchId) => {
-    deleteMatch(matchId);
-    
-    // Recalculate standings without the deleted match
-    const remainingMatches = matches.filter(m => m.id !== matchId);
-    
-    const initialTeams = [
-      { id: 1, name: "NY Legends", short: "LEG", played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0 },
-      { id: 2, name: "NY Alpha", short: "ALP", played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0 },
-      { id: 3, name: "NY GenZ", short: "GEN", played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0 },
-      { id: 4, name: "Peel F.C.", short: "PEL", played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0 }
-    ];
-
-    let recalculatedTeams = [...initialTeams];
-    remainingMatches.forEach(match => {
-      recalculatedTeams = recalculatedTeams.map(team => {
-        if (team.name === match.teamA) {
-          return updateSingleTeam(team, match.scoreA, match.scoreB, match.scoreA > match.scoreB, match.scoreA === match.scoreB);
-        }
-        if (team.name === match.teamB) {
-          return updateSingleTeam(team, match.scoreB, match.scoreA, match.scoreB > match.scoreA, match.scoreA === match.scoreB);
-        }
-        return team;
+  // Delete match - NEEDS TO BE ADDED to API route
+  const deleteMatch = async (matchId) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`/api/standings?matchId=${matchId}`, {
+        method: 'DELETE'
       });
-    });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        setTeams(result.data.teams);
+        setMatches(result.data.matches);
+        showMessage('🗑️ Match deleted successfully!');
+      } else {
+        showMessage('❌ Failed to delete match: ' + result.error);
+      }
+    } catch (error) {
+      console.error('Error deleting match:', error);
+      showMessage('❌ Error deleting match');
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    setTeams(recalculatedTeams);
-    updateTeams(recalculatedTeams);
-    refreshData();
+  // Reset all data - You can remove this or keep for admin
+  const resetStandings = async () => {
+    setLoading(true);
+    try {
+      showMessage('🔄 Reset feature coming soon...');
+      // We'll implement this later with proper admin controls
+    } catch (error) {
+      console.error('Error resetting standings:', error);
+      showMessage('❌ Error resetting data');
+    } finally {
+      setLoading(false);
+    }
   };
 
   // Get sorted standings
@@ -177,6 +160,7 @@ export const useStandings = () => {
         ...team
       }));
   };
+  
 
   // Get match history
   const getMatchHistory = () => {
@@ -200,22 +184,19 @@ export const useStandings = () => {
     };
   };
 
-  // Reset all data
-  const handleResetStandings = () => {
-    resetData();
-    refreshData();
-  };
-
   return {
     teams,
     matches,
     isLoaded,
+    loading,
+    message,
     addMatchResult,
-    updateMatch: handleUpdateMatch,
-    deleteMatch: handleDeleteMatch,
+    updateMatch,
+    deleteMatch,
     getStandings,
     getMatchHistory,
     getStatistics,
-    resetStandings: handleResetStandings
+    resetStandings,
+    showMessage
   };
 };

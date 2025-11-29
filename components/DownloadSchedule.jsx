@@ -5,28 +5,28 @@ import { jsPDF } from "jspdf";
 export default function DownloadSchedule() {
   const schedule = [
     { week: "Week 1", date: "Nov 30, 2025", games: [
-      { time: "6:00-7:00 AM", match: "NY Legends vs NY GenZ", court: "Inifinity Sports | Brampton Field" },
-      { time: "7:00-8:00 AM", match: "NY Alpha vs Peel F.C. ", court: "Inifinity Sports | Brampton Field" }
+      { time: "6:00-7:00 AM", match: "NY Legends vs NY GenZ", court: "Inifinite Sports | Brampton" },
+      { time: "7:00-8:00 AM", match: "NY Alpha vs Peel F.C. ", court: "Inifinite Sports | Brampton" }
     ]},
     { week: "Week 2", date: "Dec 07, 2025", games: [
-      { time: "6:00-7:00 AM", match: "NY Legends vs Peel F.C. ", court: "Inifinity Sports | Brampton Field" },
-      { time: "7:00-8:00 AM", match: "NY Alpha vs NY GenZ", court: "Inifinity Sports | Brampton Field" }
+      { time: "6:00-7:00 AM", match: "NY Legends vs Peel F.C. ", court: "Inifinite Sports | Brampton" },
+      { time: "7:00-8:00 AM", match: "NY Alpha vs NY GenZ", court: "Inifinite Sports | Brampton" }
     ]},
     { week: "Week 3", date: "Dec 14, 2025", games: [
-      { time: "6:00-7:00 AM", match: "NY Legends vs NY Alpha", court: "Inifinity Sports | Brampton Field" },
-      { time: "7:00-8:00 AM", match: "NY GenZ vs Peel F.C. ", court: "Inifinity Sports | Brampton Field" }
+      { time: "6:00-7:00 AM", match: "NY Legends vs NY Alpha", court: "Inifinite Sports | Brampton" },
+      { time: "7:00-8:00 AM", match: "NY GenZ vs Peel F.C. ", court: "Inifinite Sports | Brampton" }
     ]},
     { week: "Week 4", date: "Dec 21, 2025", games: [
-      { time: "6:00-7:00 AM", match: "NY Alpha vs Peel F.C. ", court: "Inifinity Sports | Brampton Field" },
-      { time: "7:00-8:00 AM", match: "NY Legends vs NY GenZ", court: "Inifinity Sports | Brampton Field" }
+      { time: "6:00-7:00 AM", match: "NY Alpha vs Peel F.C. ", court: "Inifinite Sports | Brampton" },
+      { time: "7:00-8:00 AM", match: "NY Legends vs NY GenZ", court: "Inifinite Sports | Brampton" }
     ]},
     { week: "Week 5", date: "Dec 28, 2025", games: [
-      { time: "6:00-7:00 AM", match: "NY Alpha vs NY GenZ", court: "Inifinity Sports | Brampton Field" },
-      { time: "7:00-8:00 AM", match: "NY Legends vs Peel F.C. ", court: "Inifinity Sports | Brampton Field" }
+      { time: "6:00-7:00 AM", match: "NY Alpha vs NY GenZ", court: "Inifinite Sports | Brampton" },
+      { time: "7:00-8:00 AM", match: "NY Legends vs Peel F.C. ", court: "Inifinite Sports | Brampton" }
     ]},
     { week: "Week 6", date: "Jan 04, 2025", games: [
-      { time: "6:00-7:00 AM", match: "NY GenZ vs Peel F.C. ", court: "Inifinity Sports | Brampton Field" },
-      { time: "7:00-8:00 AM", match: "NY Legends vs NY Alpha", court: "Inifinity Sports | Brampton Field" }
+      { time: "6:00-7:00 AM", match: "NY GenZ vs Peel F.C. ", court: "Inifinite Sports | Brampton" },
+      { time: "7:00-8:00 AM", match: "NY Legends vs NY Alpha", court: "Inifinite Sports | Brampton" }
     ]}
   ];
 
