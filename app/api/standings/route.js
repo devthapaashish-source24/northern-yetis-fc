@@ -1,6 +1,10 @@
 import clientPromise from '../../../lib/mongodb';
 import { ObjectId } from 'mongodb'; 
+
+export const dynamic = 'force-dynamic';
+
 const DB_NAME = "northern-yetis-fc";
+
 // Helper: Calculate standings from matches
 const calculateStandings = (teams, matches) => {
   const teamStats = {};
@@ -78,6 +82,15 @@ const validateMatchData = (data) => {
 
 // GET - Read all data
 export async function GET() {
+  // Skip during Vercel build
+  if (process.env.NODE_ENV === 'production' && process.env.VERCEL_ENV) {
+    return Response.json({
+      success: true,
+      message: "Standings API skipped during build",
+      buildTime: true
+    });
+  }
+
   try {
     const client = await clientPromise;
     const db = client.db(DB_NAME);
