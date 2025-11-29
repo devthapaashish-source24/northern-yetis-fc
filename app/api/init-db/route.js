@@ -5,6 +5,23 @@ export const fetchCache = 'force-no-store';
 export const runtime = 'nodejs';
 
 export async function GET() {
+    if (!process.env.MONGODB_URI) {
+    return Response.json({ 
+      success: true, 
+      message: "Init DB API - MongoDB not configured during build",
+      buildTime: true
+    });
+  }
+  
+  // Skip during Vercel build
+  if (process.env.NODE_ENV === 'production' && process.env.VERCEL_ENV) {
+    return Response.json({ 
+      success: true, 
+      message: "Database initialization skipped during build",
+      buildTime: true
+    });
+  }
+
   try {
     const client = await clientPromise;
     const db = client.db("northern-yetis-fc");
