@@ -1,13 +1,9 @@
-import clientPromise from "../../../lib/mongodb";
 import { ObjectId } from "mongodb";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 export const revalidate = 0;
 export const fetchCache = "force-no-store";
-
-// REMOVE ALL build-time skip logic.
-// No generateStaticParams needed for API routes.
 
 const DB_NAME = "northern-yetis-fc";
 
@@ -54,6 +50,7 @@ const calculateStandings = (teams, matches) => {
 
 export async function GET() {
   try {
+    const { default: clientPromise } = await import("../../../lib/mongodb");
     const client = await clientPromise;
     const db = client.db(DB_NAME);
 
@@ -64,7 +61,7 @@ export async function GET() {
       success: true,
       data: {
         teams: calculateStandings(teams, matches),
-        matches,
+        matches
       },
     });
   } catch (error) {
@@ -75,6 +72,7 @@ export async function GET() {
 
 export async function POST(request) {
   try {
+    const { default: clientPromise } = await import("../../../lib/mongodb");
     const client = await clientPromise;
     const db = client.db(DB_NAME);
 
@@ -111,6 +109,7 @@ export async function PUT(request) {
     const body = await request.json();
     const { matchId, scoreA, scoreB } = body;
 
+    const { default: clientPromise } = await import("../../../lib/mongodb");
     const client = await clientPromise;
     const db = client.db(DB_NAME);
 
@@ -140,6 +139,7 @@ export async function DELETE(request) {
     const { searchParams } = new URL(request.url);
     const matchId = searchParams.get("matchId");
 
+    const { default: clientPromise } = await import("../../../lib/mongodb");
     const client = await clientPromise;
     const db = client.db(DB_NAME);
 
