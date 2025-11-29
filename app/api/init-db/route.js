@@ -1,17 +1,28 @@
-import clientPromise from "../../../lib/mongodb";
-
 export const dynamic = "force-dynamic";
-export const runtime = "nodejs";
 export const revalidate = 0;
+export const runtime = "nodejs";
+
+// 🚨 MUST BE FIRST — prevents Vercel build from running this route
+if (process.env.VERCEL_BUILDER === "1" || process.env.NODE_ENV === "production") {
+  export async function GET() {
+    return Response.json({
+      success: true,
+      message: "Init-DB skipped during build",
+      buildTime: true
+    });
+  }
+  return;
+}
+
+import clientPromise from "@/lib/mongodb";
 
 export async function GET() {
   try {
-    // CONNECT
     const client = await clientPromise;
     const db = client.db("northern-yetis-fc");
 
-    const matchesCollection = db.collection("matches");
     const teamsCollection = db.collection("teams");
+    const matchesCollection = db.collection("matches");
 
     const initialTeams = [
       { name: "NY Legends", shortCode: "LEG", played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0, goalDifference: 0 },
@@ -20,7 +31,6 @@ export async function GET() {
       { name: "Peel F.C.", shortCode: "PEL", played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0, goalDifference: 0 }
     ];
 
-    // RESET DB
     await teamsCollection.deleteMany({});
     await teamsCollection.insertMany(initialTeams);
     await matchesCollection.deleteMany({});
@@ -28,14 +38,9 @@ export async function GET() {
     return Response.json({
       success: true,
       message: "Database initialized successfully!",
-      teamsAdded: initialTeams.length,
-      collections: ["matches", "teams"],
+      teamsAdded: initialTeams.length
     });
-  } catch (error) {
-    console.error("DB init error:", error);
-    return Response.json(
-      { success: false, error: error.message },
-      { status: 500 }
-    );
+  } catch (err) {
+    return Response.json({ success: false, error: err.message }, { status: 500 });
   }
 }
