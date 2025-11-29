@@ -1,22 +1,19 @@
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-export const runtime = "nodejs";
+import clientPromise from '@/lib/mongodb';
 
-// 🚨 MUST BE FIRST — prevents Vercel build from running this route
-if (process.env.VERCEL_BUILDER === "1" || process.env.NODE_ENV === "production") {
-  export async function GET() {
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+export const runtime = 'nodejs';
+
+export async function GET() {
+  // Skip during Vercel build
+  if (process.env.VERCEL_BUILDER === '1' || !process.env.MONGODB_URI) {
     return Response.json({
       success: true,
       message: "Init-DB skipped during build",
       buildTime: true
     });
   }
-  return;
-}
 
-import clientPromise from "@/lib/mongodb";
-
-export async function GET() {
   try {
     const client = await clientPromise;
     const db = client.db("northern-yetis-fc");
