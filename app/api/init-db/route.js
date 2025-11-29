@@ -1,34 +1,18 @@
-import clientPromise from '../../../lib/mongodb';
+import clientPromise from "../../../lib/mongodb";
 
-export const dynamic = 'force-dynamic';
-export const fetchCache = 'force-no-store';
-export const runtime = 'nodejs';
+export const dynamic = "force-dynamic";
+export const runtime = "nodejs";
+export const revalidate = 0;
 
 export async function GET() {
-    if (!process.env.MONGODB_URI) {
-    return Response.json({ 
-      success: true, 
-      message: "Init DB API - MongoDB not configured during build",
-      buildTime: true
-    });
-  }
-  
-  // Skip during Vercel build
-  if (process.env.NODE_ENV === 'production' && process.env.VERCEL_ENV) {
-    return Response.json({ 
-      success: true, 
-      message: "Database initialization skipped during build",
-      buildTime: true
-    });
-  }
-
   try {
+    // CONNECT
     const client = await clientPromise;
     const db = client.db("northern-yetis-fc");
 
-    const matchesCollection = db.collection('matches');
-    const teamsCollection = db.collection('teams');
-    
+    const matchesCollection = db.collection("matches");
+    const teamsCollection = db.collection("teams");
+
     const initialTeams = [
       { name: "NY Legends", shortCode: "LEG", played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0, goalDifference: 0 },
       { name: "NY Alpha", shortCode: "ALP", played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0, goalDifference: 0 },
@@ -36,21 +20,22 @@ export async function GET() {
       { name: "Peel F.C.", shortCode: "PEL", played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0, goalDifference: 0 }
     ];
 
+    // RESET DB
     await teamsCollection.deleteMany({});
     await teamsCollection.insertMany(initialTeams);
     await matchesCollection.deleteMany({});
 
-    return Response.json({ 
-      success: true, 
+    return Response.json({
+      success: true,
       message: "Database initialized successfully!",
       teamsAdded: initialTeams.length,
-      collections: ['matches', 'teams']
+      collections: ["matches", "teams"],
     });
-
   } catch (error) {
-    return Response.json({ 
-      success: false, 
-      error: error.message 
-    }, { status: 500 });
+    console.error("DB init error:", error);
+    return Response.json(
+      { success: false, error: error.message },
+      { status: 500 }
+    );
   }
 }
