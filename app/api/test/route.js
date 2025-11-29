@@ -1,29 +1,22 @@
-import clientPromise from '../../../lib/mongodb';
-
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
+export const runtime = 'nodejs';
 
 export async function GET() {
 
-  // Detect Vercel build environment correctly
-  if (process.env.VERCEL_BUILDER === '1') {
+  // Skip entirely during Vercel build
+  if (process.env.VERCEL_BUILDER === '1' || !process.env.MONGODB_URI) {
     return Response.json({
       success: true,
-      message: "Test API skipped during Vercel build",
-      buildTime: true
-    });
-  }
-
-  // Detect missing MongoDB URI (local build)
-  if (!process.env.MONGODB_URI) {
-    return Response.json({
-      success: true,
-      message: "MongoDB not configured (likely build stage)",
+      message: "Test API skipped during build",
       buildTime: true
     });
   }
 
   try {
+    // Lazy import MongoDB ONLY at runtime
+    const { default: clientPromise } = await import('../../../lib/mongodb');
+
     const client = await clientPromise;
     const db = client.db("northern-yetis-fc");
 
