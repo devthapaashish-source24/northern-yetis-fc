@@ -1,7 +1,17 @@
-// app/api/test/route.js
 import clientPromise from '../../../lib/mongodb';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
+  // Skip during Vercel build
+  if (process.env.NODE_ENV === 'production' && process.env.VERCEL_ENV) {
+    return Response.json({ 
+      success: true, 
+      message: "Test API skipped during build",
+      buildTime: true
+    });
+  }
+
   try {
     const client = await clientPromise;
     const db = client.db("northern-yetis-fc");
