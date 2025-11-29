@@ -1,32 +1,26 @@
-import clientPromise from '../../../lib/mongodb';
-
-// Force dynamic rendering and prevent static generation
 export const dynamic = 'force-dynamic';
-export const revalidate = 0;
-
-// Skip this route during build entirely
-export const generateStaticParams = () => {
-  return [];
-}
+export const fetchCache = 'force-no-store';
+export const runtime = 'nodejs';
 
 export async function GET() {
-  // More comprehensive build skip
-  if (process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV) {
+  // Completely skip any database operations
+  if (process.env.NODE_ENV === 'production' || !process.env.MONGODB_URI) {
     return Response.json({ 
       success: true, 
-      message: "Database initialization skipped during build",
-      buildTime: true,
-      environment: process.env.NODE_ENV,
-      vercelEnv: process.env.VERCEL_ENV
+      message: "Init DB API - call manually after deployment",
+      status: "ready"
     });
   }
 
+  // This part will only run in development with MongoDB URI
   try {
+    const { default: clientPromise } = await import('../../../lib/mongodb');
     const client = await clientPromise;
     const db = client.db("northern-yetis-fc");
 
-    const matchesCollection = db.collection('matches');
+    // Your initialization code here...
     const teamsCollection = db.collection('teams');
+    const matchesCollection = db.collection('matches');
     
     const initialTeams = [
       { name: "NY Legends", shortCode: "LEG", played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0, goalDifference: 0 },
@@ -42,8 +36,7 @@ export async function GET() {
     return Response.json({ 
       success: true, 
       message: "Database initialized successfully!",
-      teamsAdded: initialTeams.length,
-      collections: ['matches', 'teams']
+      teamsAdded: initialTeams.length
     });
 
   } catch (error) {
