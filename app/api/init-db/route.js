@@ -1,14 +1,23 @@
 import clientPromise from '../../../lib/mongodb';
 
+// Force dynamic rendering and prevent static generation
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+// Skip this route during build entirely
+export const generateStaticParams = () => {
+  return [];
+}
 
 export async function GET() {
-  // Skip during Vercel build
-  if (process.env.NODE_ENV === 'production' && process.env.VERCEL_ENV) {
-    return Response.json({
-      success: true,
-      message: "Database initialization skipped during Vercel build",
-      buildTime: true
+  // More comprehensive build skip
+  if (process.env.NODE_ENV === 'production' || process.env.VERCEL_ENV) {
+    return Response.json({ 
+      success: true, 
+      message: "Database initialization skipped during build",
+      buildTime: true,
+      environment: process.env.NODE_ENV,
+      vercelEnv: process.env.VERCEL_ENV
     });
   }
 
@@ -30,17 +39,17 @@ export async function GET() {
     await teamsCollection.insertMany(initialTeams);
     await matchesCollection.deleteMany({});
 
-    return Response.json({
-      success: true,
+    return Response.json({ 
+      success: true, 
       message: "Database initialized successfully!",
       teamsAdded: initialTeams.length,
       collections: ['matches', 'teams']
     });
 
   } catch (error) {
-    return Response.json({
-      success: false,
-      error: error.message
+    return Response.json({ 
+      success: false, 
+      error: error.message 
     }, { status: 500 });
   }
 }

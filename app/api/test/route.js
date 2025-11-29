@@ -1,6 +1,13 @@
 import clientPromise from '../../../lib/mongodb';
 
+// Force dynamic rendering and prevent static generation
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+// Skip this route during build entirely
+export const generateStaticParams = () => {
+  return [];
+}
 
 export async function GET() {
   // Skip during Vercel build

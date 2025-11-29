@@ -1,7 +1,13 @@
 import clientPromise from '../../../lib/mongodb';
 import { ObjectId } from 'mongodb'; 
-
+// Force dynamic rendering and prevent static generation
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
+// Skip this route during build entirely
+export const generateStaticParams = () => {
+  return [];
+}
 
 const DB_NAME = "northern-yetis-fc";
 
