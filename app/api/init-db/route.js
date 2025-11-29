@@ -1,16 +1,24 @@
 import clientPromise from '../../../lib/mongodb';
+
 export async function GET() {
+  // Skip database operations during Vercel build
+  if (process.env.NODE_ENV === 'production' && process.env.VERCEL_ENV) {
+    return Response.json({ 
+      success: true, 
+      message: "Database initialization skipped during Vercel build",
+      vercelBuild: true,
+      note: "Call this API manually after deployment to initialize database"
+    });
+  }
+
   try {
     const client = await clientPromise;
     const db = client.db("northern-yetis-fc");
 
-    //matches collection 
+    // ... rest of your database code
     const matchesCollection = db.collection('matches');
-    console.log(matchesCollection)
-    // teams collection
     const teamsCollection = db.collection('teams');
     
-    // Insert initial teams data
     const initialTeams = [
       { name: "NY Legends", shortCode: "LEG", played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0, goalDifference: 0 },
       { name: "NY Alpha", shortCode: "ALP", played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0, goalDifference: 0 },
@@ -18,11 +26,9 @@ export async function GET() {
       { name: "Peel F.C.", shortCode: "PEL", played: 0, won: 0, drawn: 0, lost: 0, goalsFor: 0, goalsAgainst: 0, points: 0, goalDifference: 0 }
     ];
 
-    await teamsCollection.deleteMany({}); // Clear existing
+    await teamsCollection.deleteMany({});
     await teamsCollection.insertMany(initialTeams);
-
-    // Ensure matches collection exists (empty for now)
-    await matchesCollection.deleteMany({}); // Clear existing
+    await matchesCollection.deleteMany({});
 
     return Response.json({ 
       success: true, 
