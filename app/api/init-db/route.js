@@ -1,14 +1,14 @@
 import clientPromise from '../../../lib/mongodb';
 
-export const dynamic = process.env.NODE_ENV === 'production' && process.env.VERCEL_ENV ? 'force-static' : 'force-dynamic';
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
-  // Skip database operations during Vercel build
-if (process.env.NODE_ENV === 'production' && process.env.VERCEL_ENV) {
+  // Skip during Vercel build
+  if (process.env.NODE_ENV === 'production' && process.env.VERCEL_ENV) {
     return Response.json({ 
       success: true, 
-      message: "API disabled during build - visit after deployment",
-      disabled: true
+      message: "Database initialization skipped during Vercel build",
+      buildTime: true
     });
   }
 
