@@ -54,8 +54,8 @@ export default function ContactPage() {
                   </div>
                   <div>
                     <h3 className="text-lg font-semibold text-gray-900">Training Location</h3>
-                    <p className="text-gray-600">Northern Yetis Sports FC</p>
-                    <p className="text-gray-600">123 Football Way, Sports City</p>
+                    <p className="text-gray-600">Infinite Sports</p>
+                    <p className="text-gray-600">Infinite Sports | Brampton Indoor Turf</p>
                   </div>
                 </div>
 

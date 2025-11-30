@@ -4,7 +4,7 @@ export default function VenueDirections() {
   const [showDirections, setShowDirections] = useState(false);
   
   const venueInfo = {
-    name: "Northern Yetis Sports Complex",
+    name: "Infinite Sports",
     address: "Infinite Sports | Brampton Indoor Turf",
     googleMaps: "https://maps.google.com/?q=Infinite Sports | Brampton Indoor Turf"
   };
