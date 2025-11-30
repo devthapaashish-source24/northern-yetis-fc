@@ -41,10 +41,10 @@ export default function EventsPage() {
     ]},
     { week: "Week 2", date: "Dec 07, 2025", games: [
       { time: "6-7 AM", match: "NY Legends Vs Peel F.C." },
-      { time: "7-8 AM", match: "Alpha Vs NY GenZ" }
+      { time: "7-8 AM", match: "NY Alpha Vs NY GenZ" }
     ]},
     { week: "Week 3", date: "Dec 14, 2025", games: [
-      { time: "6-7 AM", match: "NY Legends Vs Alpha" },
+      { time: "6-7 AM", match: "NY Legends Vs NY Alpha" },
       { time: "7-8 AM", match: "NY GenZ Vs Peel F.C." }
     ]},
     { week: "Week 4", date: "Dec 21, 2025", games: [
