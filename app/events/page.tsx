@@ -3,6 +3,7 @@ import Divider from '../../components/Divider'
 import DownloadSchedule from'../../components/DownloadSchedule'
 import StandingsTable from'../../components/StandingsTable'
 import PublicMatchInfo from '../../components/PublicMatchInfo'
+import LeaderboardTabs from '../../components/LeaderboardTabs'
 export default function EventsPage() {
   const teams = [
     {
@@ -114,6 +115,10 @@ export default function EventsPage() {
         {/* 3. Match Results Table */}
          <section className="py-16 bg-gray-50">
         <PublicMatchInfo/>
+      </section>
+      {/* 4. scorers, cards Table */}
+      <section className="py-16 bg-gray-50">
+        <LeaderboardTabs />
       </section>
       {/* Participating Teams */}
       <section className="py-16 bg-gray-50">

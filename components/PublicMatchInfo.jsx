@@ -26,7 +26,7 @@ export default function PublicMatchHistory() {
   const champion = standings[0];
 
   return (
-    <div className="p-6 bg-white shadow-lg rounded-xl">
+    <div className="p-6 mb-1 bg-white shadow-lg rounded-xl">
       <div className="max-w-6xl px-4 mx-auto">
         <h2 className="text-3xl font-bold text-[#4A154B] text-center mb-4 font-heading">
           Match Results
@@ -109,7 +109,7 @@ export default function PublicMatchHistory() {
             </thead>
             <tbody>
               {matches.map((match) => (
-                <tr key={match._id || match.id} className="border-b hover:bg-gray-50"> {/* Updated key */}
+                <tr key={match._id || match.id} className="border-b hover:bg-gray-50">
                   <td className="p-3 font-semibold">Week {match.week}</td>
                   <td className="p-3">
                     <span className="font-semibold">{match.teamA}</span> vs <span className="font-semibold">{match.teamB}</span>

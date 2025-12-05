@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useStandings } from '../hooks/useStandings';
 import { useAuth } from '../contexts/AuthContext';
 import AdminLogin from './AdminLogin';
-
+import Playerstats from './Playerstats'
 export default function MatchHistory() {
   // Hook states - handles API calls and loading
   const { 
@@ -274,7 +274,6 @@ const handleAddMatch = (e) => {
           </form>
         </div>
       )}
-
       {/* Match history table - Data fetched from MongoDB */}
       {matches.length === 0 ? (
         <div className="py-12 text-center text-gray-500">
@@ -296,12 +295,10 @@ const handleAddMatch = (e) => {
             </thead>
             <tbody>
               {matches.map((match) => (
-                <tr key={match._id} className="border-b hover:bg-gray-50"> {/* Use _id from MongoDB */}
-                  <td className="p-3 font-semibold">Week {match.week}</td>
+                <tr key={match._id} className="border-b hover:bg-gray-50"> 
                   <td className="p-3">
                     <span className="font-semibold">{match.teamA}</span> vs <span className="font-semibold">{match.teamB}</span>
                   </td>
-                  
                   <td className="p-3 text-center">
                     {
                       editingMatch?._id === match._id ? ( <div className="flex items-center justify-center gap-2">
@@ -376,6 +373,9 @@ const handleAddMatch = (e) => {
             </tbody>
           </table>
         </div>
+      )}
+      {showAddForm&&(
+        <Playerstats/>
       )}
     </div>
   );
