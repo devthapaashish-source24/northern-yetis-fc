@@ -80,7 +80,7 @@ export default function LeaderboardTabs() {
                   .filter(p=>p._id?.toLowerCase().includes(search)||p.team?.toLowerCase().includes(search))
                   .map((p,i)=>(
                   <tr key={i}
-                    className={`border-b hover:bg-[#f8f8f8] transition text-lg cursor-pointer
+                    className={`border-b  hover:bg-[#F5E9FF] transition text-lg cursor-pointer
                     ${i===0&&"bg- font-extrabold"}
                     ${i===1&&" font-bold"}
                     ${i===2&&" font-bold"}`}>
