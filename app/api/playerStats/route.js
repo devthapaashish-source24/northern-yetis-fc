@@ -10,14 +10,22 @@ export async function GET() {
   const stats = db.collection("goals");
 
   // ░ TOP SCORERS TOTAL░
-  const scorers = await stats.aggregate([
-    { $group: {
-        _id: "$player",
-        team: { $first: "$team" },
-        totalGoals: { $sum: "$score" }
-    }},
-    { $sort: { totalGoals: -1 }}
-  ]).toArray();
+ const scorers = await stats.aggregate([
+  // Count only entries where score > 0
+  { $match: { score: { $gt: 0 } }},
+
+  { $group: { 
+      _id: "$player",
+      team: { $first: "$team" },
+      totalGoals: { $sum: "$score" }
+  }},
+
+  // Exclude players with totalGoals = 0 (double safety)
+  { $match: { totalGoals: { $gt: 0 } }},
+
+  { $sort: { totalGoals: -1 }}
+]).toArray();
+
 
   // ░ WEEKLY BREAKDOWN░
   const weekly = await stats.aggregate([
