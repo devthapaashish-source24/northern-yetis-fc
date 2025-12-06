@@ -28,14 +28,19 @@ export async function GET() {
 
 
   // ░ WEEKLY BREAKDOWN░
-  const weekly = await stats.aggregate([
-    { $group: {
+ const weekly = await stats.aggregate([
+  // Only include records with score > 0
+  { $match: { score: { $gt: 0 } }},
+
+  { $group: {
       _id: { player:"$player", week:"$matchWeek" },
       team: { $first:"$team" },
       goals: { $sum:"$score" }
-    }},
-    { $sort: { "_id.player":1, "_id.week":1 }}
-  ]).toArray();
+  }},
+  { $sort: { "_id.player":1, "_id.week":1 }}
+]).toArray();
+
+
 
   // restructure into table format:
   const weeklyTable = {};
